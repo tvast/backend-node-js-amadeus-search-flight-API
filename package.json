@@ -1,0 +1,22 @@
+{
+  "name": "nodeventas",
+  "version": "1.0.0",
+  "description": "parse folder of ventyas to generate jSon",
+  "main": "server.js",
+  "scripts": {
+    "start": "nodemon server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "theophile vast",
+  "license": "ISC",
+  "devDependencies": {
+    "express": "^4.17.1",
+    "nodemon": "^1.19.4"
+  },
+  "dependencies": {
+    "dree": "^2.1.11",
+    "glob": "^7.1.4",
+    "node-static": "^0.7.11",
+    "serve-index": "^1.9.1"
+  }
+}
