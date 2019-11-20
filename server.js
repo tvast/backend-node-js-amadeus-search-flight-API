@@ -56,6 +56,7 @@ app.post('/example', (req, res) => {
 
 
  let responseData="";
+ let page2="";
 
  amadeus.shopping.flightDates.get({
   origin : originTravel,
@@ -69,14 +70,18 @@ app.post('/example', (req, res) => {
 });
 
 
-amadeus.referenceData.airlines.get({
-  airlineCodes : "IB"
+let responseData2 = "";
+amadeus.shopping.flightDestinations.get({
+  origin : 'MAD'
 }).then(function(response){
-  // console.log(response.data);
-  // responseData=response.data[0].href;
+  console.log(response.data);
+  responseData2=response.data;
+
 }).catch(function(responseError){
   console.log(responseError.code);
 });
+
+
 
 
 // app.use(bodyParser.urlencoded({ extended: true }));
@@ -91,6 +96,10 @@ amadeus.referenceData.airlines.get({
 
 app.get('/', function(req, res) {
   res.send(JSON.stringify(responseData));
+});
+
+app.get('/flight', function(req, res) {
+  res.send(JSON.stringify(responseData2));
 });
 
 // app.get('/test/*', function(req, res){
