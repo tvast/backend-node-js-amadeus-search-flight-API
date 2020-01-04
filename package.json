@@ -17,6 +17,7 @@
     "amadeus": "^3.2.0",
     "dree": "^2.1.11",
     "glob": "^7.1.4",
+    "node-fetch": "^2.6.0",
     "node-static": "^0.7.11",
     "serve-index": "^1.9.1"
   }

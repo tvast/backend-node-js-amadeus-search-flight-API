@@ -2,6 +2,8 @@ var express = require('express')
 var glob = require("glob")
 const bodyParser = require('body-parser');
 
+const fetch = require('node-fetch');
+
  app = express(),
   port = process.env.PORT || 3000;
 // const dree = require('dree');
@@ -18,6 +20,7 @@ const bodyParser = require('body-parser');
  
 // const tree = dree.scan('../board_ftp/Ctrl_Gestion', options);
 
+//initialize client
 
 let allowCrossDomain = function(req, res, next) {
   res.header('Access-Control-Allow-Origin', "*");
@@ -25,12 +28,49 @@ let allowCrossDomain = function(req, res, next) {
   next();
 }
 app.use(allowCrossDomain);
-var Amadeus = require('amadeus');
+let Amadeus = require('amadeus');
 
-var amadeus = new Amadeus({
+let amadeus = new Amadeus({
   clientId: 'qztkbf5XWjNSGkXRF9bfAwNg6bELWvVD',
   clientSecret: 'w9mJ7ZJzlEGNffut'
 });
+
+const uriAuth ="https://test.api.amadeus.com/v1/security/oauth2/token" 
+
+
+//get grant
+let headers= {
+      // 'Content-Type': 'application/json'   
+      'Content-Type': 'application/x-www-form-urlencoded',
+     };
+
+let body = {
+   "grant_type": "client_credentials",
+   "client_id": "qztkbf5XWjNSGkXRF9bfAwNg6bELWvVD",
+  "client_secret": "w9mJ7ZJzlEGNffut",
+  
+}
+
+let token="";
+
+fetch(uriAuth, { method: 'POST', 
+  headers: headers, 
+  body: 'grant_type=client_credentials&client_id=' + body.client_id + '&client_secret=' + body.client_secret
+})
+  .then((res) => {
+     return res.json()
+})
+.then((json) => {
+  console.log(json);
+token=json.access_token;
+console.log(token);
+
+  
+  // Do something with the returned data.
+});
+
+
+//get token
 
 
  // amadeus.referenceData.locations.get({
@@ -44,15 +84,19 @@ var amadeus = new Amadeus({
  //      console.log(firstPage);
  //    });
 
+//UTilities test
+
+
+
 let originTravel="MAD";
 let destinationTravel ="MUC";
-app.use(bodyParser.urlencoded({ extended: true })); 
+// app.use(bodyParser.urlencoded({ extended: true })); 
 
-app.post('/example', (req, res) => {
-  res.send(`origin':${req.body.origin} ${req.body.destination}.`);
-  originTravel=req.body.origin;
-  destinationTravel=req.body.destination;
-});
+// app.post('/example', (req, res) => {
+//   res.send(`origin':${req.body.origin} ${req.body.destination}.`);
+//   originTravel=req.body.origin;
+//   destinationTravel=req.body.destination;
+// });
 
 
  let responseData="";
@@ -62,11 +106,11 @@ app.post('/example', (req, res) => {
   origin : originTravel,
   destination : destinationTravel
 }).then(function(response){
-  console.log(response.data);
+  // console.log(response.data);      
   responseData=response.data;
 
 }).catch(function(responseError){
-  console.log(responseError.code);
+  // console.log(responseError.code);
 });
 
 
@@ -74,11 +118,11 @@ let responseData2 = "";
 amadeus.shopping.flightDestinations.get({
   origin : 'MAD'
 }).then(function(response){
-  console.log(response.data);
+  // console.log(response.data);
   responseData2=response.data;
 
 }).catch(function(responseError){
-  console.log(responseError.code);
+  // console.log(responseError.code);
 });
 
 
@@ -102,6 +146,10 @@ app.get('/flight', function(req, res) {
   res.send(JSON.stringify(responseData2));
 });
 
+app.get('/token', function(req, res) {
+  res.send(JSON.stringify(token));
+});
+
 // app.get('/test/*', function(req, res){
 //     var uid = req.params.uid,
 //         path = req.params[0] ? req.params[0] : '*.xlsx';
@@ -120,4 +168,4 @@ app.get('/flight', function(req, res) {
 
 app.listen(port);
 // console.log(tree)
-console.log('todo list RESTful API server started on: ' + port);
+console.log('Amadeus RESTful API server started on: ' + port);
