@@ -5,22 +5,8 @@ const bodyParser = require('body-parser');
 const fetch = require('node-fetch');
 
  app = express(),
-  port = process.env.PORT || 3000;
-// const dree = require('dree');
- 
-// const options = {
-//   stat: false,
-//   normalize: true,
-//   followLinks: true,
-//   size: true,
-//   hash: true,
-//   depth: 5,
-//   exclude: /dir_to_exclude/
-// };
- 
-// const tree = dree.scan('../board_ftp/Ctrl_Gestion', options);
+ port = process.env.PORT || 3000;
 
-//initialize client
 
 let allowCrossDomain = function(req, res, next) {
   res.header('Access-Control-Allow-Origin', "*");
@@ -62,117 +48,113 @@ fetch(uriAuth, { method: 'POST',
 })
 .then((json) => {
   console.log(json);
-token=json.access_token;
-console.log(token);
+  token=json.access_token;
+  console.log(token);
 
-var request = require("request");
 let header= {'content-type': 'application/json', authorization: 'Bearer '+token}
 
-var options = {
-  method: 'GET',
-  url: 'https://test.api.amadeus.com/v1/shopping/flight-destinations?origin=MAD',
-  headers: header
-};
+// var options = {
+//   method: 'GET',
+//   url: 'https://test.api.amadeus.com/v2/shopping/flight-offers?',
+//   origin :"originLocationCode=MAD",
+//   destination:"&destinationLocationCode=PAR",
+//   departure :"&departureDate=2020-02-25",
+//   return:"&returnDate=2020-01-27",
+//   passenger :"&adults=1",
+//   max :"&max=250",
+//   headers: header
+// };
 
-console.log(options.headers)
+//GET flight search
+// let urlFO = options.url+options.origin+options.destination+options.departure+options.return+ options.passenger+options.max
+// console.log(urlFO);
 
-// request(options, function (error, response, body) {
-//   if (error) throw new Error(error);
-//   return body
+// fetch(urlFO, { method: 'GET', 
+//   headers: header, 
+// })
+//   .then((res) => {
+//      return res.json()
+// })
+// .then((json) => {
+// flightfrommadrid=json;
+// console.log(flightfrommadrid);
 
-//   console.log(body);
-// });
+// })
 
-fetch(options.url, { method: 'GET', 
+//POST flight search 
+
+let request = {
+  "currencyCode": "USD",
+  "originDestinations": [
+    {
+      "id": "1",
+      "originLocationCode": "MAD",
+      "destinationLocationCode": "PAR",
+      "departureDateTimeRange": {
+        "date": "2020-01-25",
+        "time": "10:00:00"
+      }
+    },
+    {
+      "id": "2",
+      "originLocationCode": "MAD",
+      "destinationLocationCode": "PAR",
+      "departureDateTimeRange": {
+        "date": "2020-02-27",
+        "time": "17:00:00"
+      }
+    }
+  ],
+  "travelers": [
+    {
+      "id": "1",
+      "travelerType": "ADULT",
+      "fareOptions": [
+        "STANDARD"
+      ]
+    },
+  ],
+  "sources": [
+    "GDS"
+  ],
+  "searchCriteria": {
+    "maxFlightOffers": 50,
+    "flightFilters": {
+      "cabinRestrictions": [
+        {
+          "cabin": "BUSINESS",
+          "coverage": "MOST_SEGMENTS",
+          "originDestinationIds": [
+            "1"
+          ]
+        }
+      ],
+      "carrierRestrictions": {
+        "excludedCarrierCodes": [
+          "AA",
+          "TP",
+          "AZ"
+        ]
+      }
+    }
+  }
+}
+
+let uriFlightOffer = "https://test.api.amadeus.com/v2/shopping/flight-offers"
+
+fetch(uriFlightOffer, { method: 'POST', 
   headers: header, 
+  body: JSON.stringify(request)
 })
   .then((res) => {
      return res.json()
 })
 .then((json) => {
   console.log(json);
-flightfrommadrid=json;
-console.log(flightfrommadrid);
-
-})
-  
+  flightfrommadrid=json.data;
   // Do something with the returned data.
 });
-
-
-//get token
-
-// let ino1 ="";
-//  amadeus.referenceData.locations.get({
-//       keyword: 'PAR',
-//       subType: 'AIRPORT,CITY',
-//       page: { offset: 2 }
-//    }).then(function(response){
-//       console.log(response);
-//     ino1=response.result ;
-
-//       return amadeus.first(response);
-//     })
-
-//UTilities test
-
-
-
-let originTravel="MAD";
-let destinationTravel ="MUC";
-app.use(bodyParser.urlencoded({ extended: true })); 
-
-// app.post('/example', (req, res) => {
-//   res.send(`origin':${req.body.origin} ${req.body.destination}.`);
-//   originTravel=req.body.origin;
-//   destinationTravel=req.body.destination;
-// });
-
-
-//  let responseData="";
-//  let page2="";
-
-//  amadeus.shopping.flightDates.get({
-//   origin : originTravel,
-//   destination : destinationTravel
-// }).then(function(response){
-//   // console.log(response.data);      
-//   responseData=response.data;
-
-// }).catch(function(responseError){
-//   // console.log(responseError.code);
-// });
-
-
-// let responseData2 = "";
-// amadeus.shopping.flightDestinations.get({
-//   origin : 'MAD'
-// }).then(function(response){
-//   console.log(response.data);
-//   responseData2=response.data;
-
-// }).catch(function(responseError){
-//   // console.log(responseError.code);
-// });
-
-
-
-
-
-
-// app.use(bodyParser.urlencoded({ extended: true }));
-// app.use(bodyParser.json());
-
- // app.route('/')
- //    .get(function (){return JSON.stringify(tree).})
-
-//  app.use('*/file',express.static('img2'));
-
-//  app.use("/files",express.static('img2'));
-
-// app.get('/', function(req, res) {
-//   res.send(JSON.stringify(responseData));
-// });
+});
 
 app.get('/flight', function(req, res) {
   res.send(JSON.stringify(flightfrommadrid));
@@ -182,21 +164,6 @@ app.get('/token', function(req, res) {
   res.send(JSON.stringify(token));
 });
 
-// app.get('/test/*', function(req, res){
-//     var uid = req.params.uid,
-//         path = req.params[0] ? req.params[0] : '*.xlsx';
-//     res.sendFile(path, {root: '../board_ftp/Ctrl_Gestion/'});
-// });
-
-// app.get('/fileExcel', function (req, res) {
-
-//EDIT: USE WALK INSTEAD OF WALK TO GO UNDER CHILD DIRS
-// glob("*", options, function (er, files) {
-//   res.send(savePath);
-// });
-// res.send(savePath);
-
-// });
 
 app.listen(port);
 // console.log(tree)
