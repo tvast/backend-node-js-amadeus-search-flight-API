@@ -52,7 +52,7 @@ let body = {
 }
 
 let token="";
-
+let flightfrommadrid ="";
 fetch(uriAuth, { method: 'POST', 
   headers: headers, 
   body: 'grant_type=client_credentials&client_id=' + body.client_id + '&client_secret=' + body.client_secret
@@ -65,6 +65,36 @@ fetch(uriAuth, { method: 'POST',
 token=json.access_token;
 console.log(token);
 
+var request = require("request");
+let header= {'content-type': 'application/json', authorization: 'Bearer '+token}
+
+var options = {
+  method: 'GET',
+  url: 'https://test.api.amadeus.com/v1/shopping/flight-destinations?origin=MAD',
+  headers: header
+};
+
+console.log(options.headers)
+
+// request(options, function (error, response, body) {
+//   if (error) throw new Error(error);
+//   return body
+
+//   console.log(body);
+// });
+
+fetch(options.url, { method: 'GET', 
+  headers: header, 
+})
+  .then((res) => {
+     return res.json()
+})
+.then((json) => {
+  console.log(json);
+flightfrommadrid=json;
+console.log(flightfrommadrid);
+
+})
   
   // Do something with the returned data.
 });
@@ -72,17 +102,17 @@ console.log(token);
 
 //get token
 
+// let ino1 ="";
+//  amadeus.referenceData.locations.get({
+//       keyword: 'PAR',
+//       subType: 'AIRPORT,CITY',
+//       page: { offset: 2 }
+//    }).then(function(response){
+//       console.log(response);
+//     ino1=response.result ;
 
- // amadeus.referenceData.locations.get({
- //      keyword: 'PAR',
- //      subType: 'AIRPORT,CITY',
- //      page: { offset: 2 }
- //   }).then(function(response){
- //      console.log(response);
- //      return amadeus.first(response);
- //    }).then(function(firstPage){
- //      console.log(firstPage);
- //    });
+//       return amadeus.first(response);
+//     })
 
 //UTilities test
 
@@ -90,7 +120,7 @@ console.log(token);
 
 let originTravel="MAD";
 let destinationTravel ="MUC";
-// app.use(bodyParser.urlencoded({ extended: true })); 
+app.use(bodyParser.urlencoded({ extended: true })); 
 
 // app.post('/example', (req, res) => {
 //   res.send(`origin':${req.body.origin} ${req.body.destination}.`);
@@ -99,31 +129,33 @@ let destinationTravel ="MUC";
 // });
 
 
- let responseData="";
- let page2="";
+//  let responseData="";
+//  let page2="";
 
- amadeus.shopping.flightDates.get({
-  origin : originTravel,
-  destination : destinationTravel
-}).then(function(response){
-  // console.log(response.data);      
-  responseData=response.data;
+//  amadeus.shopping.flightDates.get({
+//   origin : originTravel,
+//   destination : destinationTravel
+// }).then(function(response){
+//   // console.log(response.data);      
+//   responseData=response.data;
 
-}).catch(function(responseError){
-  // console.log(responseError.code);
-});
+// }).catch(function(responseError){
+//   // console.log(responseError.code);
+// });
 
 
-let responseData2 = "";
-amadeus.shopping.flightDestinations.get({
-  origin : 'MAD'
-}).then(function(response){
-  // console.log(response.data);
-  responseData2=response.data;
+// let responseData2 = "";
+// amadeus.shopping.flightDestinations.get({
+//   origin : 'MAD'
+// }).then(function(response){
+//   console.log(response.data);
+//   responseData2=response.data;
 
-}).catch(function(responseError){
-  // console.log(responseError.code);
-});
+// }).catch(function(responseError){
+//   // console.log(responseError.code);
+// });
+
+
 
 
 
@@ -138,12 +170,12 @@ amadeus.shopping.flightDestinations.get({
 
 //  app.use("/files",express.static('img2'));
 
-app.get('/', function(req, res) {
-  res.send(JSON.stringify(responseData));
-});
+// app.get('/', function(req, res) {
+//   res.send(JSON.stringify(responseData));
+// });
 
 app.get('/flight', function(req, res) {
-  res.send(JSON.stringify(responseData2));
+  res.send(JSON.stringify(flightfrommadrid));
 });
 
 app.get('/token', function(req, res) {
