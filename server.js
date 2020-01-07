@@ -23,7 +23,8 @@ let amadeus = new Amadeus({
 
 const uriAuth ="https://test.api.amadeus.com/v1/security/oauth2/token" 
 
-
+let departure ="2020-04-27";
+let arrival="2020-03-30";
 //get grant
 let headers= {
       // 'Content-Type': 'application/json'   
@@ -83,6 +84,18 @@ let header= {'content-type': 'application/json', authorization: 'Bearer '+token}
 
 //POST flight search 
 
+
+
+
+app.post('/date', function(req, res) {
+  console.log(req)
+    departure = req.body.departure;
+    arrival = req.body.arrival;
+    console.log(departure+" "+arrival)
+    res.send(departure + ' ' + arrival);
+
+}); 
+
 let request = {
   "currencyCode": "USD",
   "originDestinations": [
@@ -91,20 +104,11 @@ let request = {
       "originLocationCode": "MAD",
       "destinationLocationCode": "PAR",
       "departureDateTimeRange": {
-        "date": "2020-01-25",
+        "date": departure,
         "time": "10:00:00"
       }
     },
-    {
-      "id": "2",
-      "originLocationCode": "MAD",
-      "destinationLocationCode": "PAR",
-      "departureDateTimeRange": {
-        "date": "2020-02-27",
-        "time": "17:00:00"
-      }
-    }
-  ],
+   ],
   "travelers": [
     {
       "id": "1",
@@ -129,19 +133,12 @@ let request = {
           ]
         }
       ],
-      "carrierRestrictions": {
-        "excludedCarrierCodes": [
-          "AA",
-          "TP",
-          "AZ"
-        ]
-      }
-    }
+     }
   }
 }
 
 let uriFlightOffer = "https://test.api.amadeus.com/v2/shopping/flight-offers"
-
+// console.log(request);
 fetch(uriFlightOffer, { method: 'POST', 
   headers: header, 
   body: JSON.stringify(request)
@@ -150,14 +147,42 @@ fetch(uriFlightOffer, { method: 'POST',
      return res.json()
 })
 .then((json) => {
-  console.log(json);
+  // console.log(json);
   flightfrommadrid=json.data;
   // Do something with the returned data.
 });
 });
 
+let updateFlightSearch = function () {
+
+
+let uriFlightOffer = "https://test.api.amadeus.com/v2/shopping/flight-offers"
+// console.log(request);
+fetch(uriFlightOffer, { method: 'POST', 
+  headers: this.header, 
+  body: JSON.stringify(this.request)
+})
+  .then((res) => {
+     return res.json()
+})
+.then((json) => {
+  // console.log(json);
+  flightfrommadrid2=json.data;
+  return flightfrommadrid2;
+  // Do something with the returned data.
+});  
+}
+
+
+app.use(bodyParser.json()); // support json encoded bodies
+app.use(bodyParser.urlencoded({ extended: true }));
+
 app.get('/flight', function(req, res) {
   res.send(JSON.stringify(flightfrommadrid));
+});
+
+app.get('/flightSearch', function(req, res) {
+  res.send(JSON.stringify(updateFlightSearch()));
 });
 
 app.get('/token', function(req, res) {
