@@ -52,7 +52,6 @@ fetch(uriAuth, { method: 'POST',
   token=json.access_token;
   console.log(token);
 
-let header= {'content-type': 'application/json', authorization: 'Bearer '+token}
 
 // var options = {
 //   method: 'GET',
@@ -87,12 +86,20 @@ let header= {'content-type': 'application/json', authorization: 'Bearer '+token}
 
 
 
+
+});
+let header= {'content-type': 'application/json', authorization: 'Bearer '+token}
+
+app.use(bodyParser.json()); // support json encoded bodies
+app.use(bodyParser.urlencoded({ extended: true }));
 app.post('/date', function(req, res) {
-  console.log(req)
+  
     departure = req.body.departure;
     arrival = req.body.arrival;
-    console.log(departure+" "+arrival)
-    res.send(departure + ' ' + arrival);
+    console.log(departure)
+    updateFlightSearch();
+    // console.log(departure+" "+arrival)
+    // res.send(departure + ' ' + arrival);
 
 }); 
 
@@ -151,22 +158,24 @@ fetch(uriFlightOffer, { method: 'POST',
   flightfrommadrid=json.data;
   // Do something with the returned data.
 });
-});
 
 let updateFlightSearch = function () {
+
+let header= {'content-type': 'application/json', authorization: 'Bearer '+token}
+
 
 
 let uriFlightOffer = "https://test.api.amadeus.com/v2/shopping/flight-offers"
 // console.log(request);
 fetch(uriFlightOffer, { method: 'POST', 
-  headers: this.header, 
-  body: JSON.stringify(this.request)
+  headers: header, 
+  body: JSON.stringify(request)
 })
   .then((res) => {
      return res.json()
 })
 .then((json) => {
-  // console.log(json);
+  console.log(json);
   flightfrommadrid2=json.data;
   return flightfrommadrid2;
   // Do something with the returned data.
@@ -174,15 +183,14 @@ fetch(uriFlightOffer, { method: 'POST',
 }
 
 
-app.use(bodyParser.json()); // support json encoded bodies
-app.use(bodyParser.urlencoded({ extended: true }));
 
 app.get('/flight', function(req, res) {
   res.send(JSON.stringify(flightfrommadrid));
 });
 
 app.get('/flightSearch', function(req, res) {
-  res.send(JSON.stringify(updateFlightSearch()));
+  res.send(JSON.stringify(flightfrommadrid2));
+  console.log(flightfrommadrid2)
 });
 
 app.get('/token', function(req, res) {
