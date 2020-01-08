@@ -23,8 +23,10 @@ let amadeus = new Amadeus({
 
 const uriAuth ="https://test.api.amadeus.com/v1/security/oauth2/token" 
 
-let departure ="2020-04-27";
+let departure ="2020-02-01";
 let arrival="2020-03-30";
+let locationDeparture="MAD"
+let locationArrival="PAR"
 //get grant
 let headers= {
       // 'Content-Type': 'application/json'   
@@ -53,39 +55,7 @@ fetch(uriAuth, { method: 'POST',
   console.log(token);
 
 
-// var options = {
-//   method: 'GET',
-//   url: 'https://test.api.amadeus.com/v2/shopping/flight-offers?',
-//   origin :"originLocationCode=MAD",
-//   destination:"&destinationLocationCode=PAR",
-//   departure :"&departureDate=2020-02-25",
-//   return:"&returnDate=2020-01-27",
-//   passenger :"&adults=1",
-//   max :"&max=250",
-//   headers: header
-// };
-
-//GET flight search
-// let urlFO = options.url+options.origin+options.destination+options.departure+options.return+ options.passenger+options.max
-// console.log(urlFO);
-
-// fetch(urlFO, { method: 'GET', 
-//   headers: header, 
-// })
-//   .then((res) => {
-//      return res.json()
-// })
-// .then((json) => {
-// flightfrommadrid=json;
-// console.log(flightfrommadrid);
-
-// })
-
 //POST flight search 
-
-
-
-
 
 });
 let header= {'content-type': 'application/json', authorization: 'Bearer '+token}
@@ -96,20 +66,44 @@ app.post('/date', function(req, res) {
   
     departure = req.body.departure;
     arrival = req.body.arrival;
-    console.log(departure)
-    updateFlightSearch();
+    locationDeparture = req.body.locationDeparture;
+    locationArrival =req.body.locationArrival;
+    
+    updateFlightSearch(departure, arrival, locationArrival,locationDeparture);
+    console.log(departure, arrival, locationArrival,locationDeparture);
     // console.log(departure+" "+arrival)
     // res.send(departure + ' ' + arrival);
 
 }); 
+
+
+
+// let uriFlightOffer = "https://test.api.amadeus.com/v2/shopping/flight-offers"
+// // console.log(request);
+// fetch(uriFlightOffer, { method: 'POST', 
+//   headers: header, 
+//   body: JSON.stringify(request)
+// })
+//   .then((res) => {
+//      return res.json()
+// })
+// .then((json) => {
+//   // console.log(json);
+//   flightfrommadrid=json.data;
+//   // Do something with the returned data.
+// });
+
+let updateFlightSearch = function (departure, arrival, locationArrival,locationDeparture) {
+// flightfrommadrid2="";
+let header= {'content-type': 'application/json', authorization: 'Bearer '+token}
 
 let request = {
   "currencyCode": "USD",
   "originDestinations": [
     {
       "id": "1",
-      "originLocationCode": "MAD",
-      "destinationLocationCode": "PAR",
+      "originLocationCode": locationDeparture,
+      "destinationLocationCode": locationArrival,
       "departureDateTimeRange": {
         "date": departure,
         "time": "10:00:00"
@@ -143,27 +137,6 @@ let request = {
      }
   }
 }
-
-let uriFlightOffer = "https://test.api.amadeus.com/v2/shopping/flight-offers"
-// console.log(request);
-fetch(uriFlightOffer, { method: 'POST', 
-  headers: header, 
-  body: JSON.stringify(request)
-})
-  .then((res) => {
-     return res.json()
-})
-.then((json) => {
-  // console.log(json);
-  flightfrommadrid=json.data;
-  // Do something with the returned data.
-});
-
-let updateFlightSearch = function () {
-
-let header= {'content-type': 'application/json', authorization: 'Bearer '+token}
-
-
 
 let uriFlightOffer = "https://test.api.amadeus.com/v2/shopping/flight-offers"
 // console.log(request);
