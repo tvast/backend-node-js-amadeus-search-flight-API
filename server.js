@@ -27,6 +27,7 @@ let flightfrommadrid3="";
 let inputFlight="";
 let cretateOrder ="";
 let data="";
+let data2="";
 //get grant
 let headers= {  
       'Content-Type': 'application/x-www-form-urlencoded',
@@ -63,13 +64,18 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(express.json());
 
+//POST
+
 //get flight offer
 app.post('/date', function(req, res) {
   departure = req.body.departure;
   arrival = req.body.arrival;
   locationDeparture = req.body.locationDeparture;
   locationArrival =req.body.locationArrival;
-  updateFlightSearch(departure, arrival, locationArrival,locationDeparture);
+  updateFlightSearch(departure, arrival, locationArrival,locationDeparture).then((data) => {
+    console.log(data);
+    flightfrommadrid2=data.data // JSON data parsed by `response.json()` call
+  });
   }); 
 //get flight offer price
 
@@ -79,7 +85,10 @@ app.post('/flightprice', function(req, res) {
   inputFlight = req.body;
   console.log(inputFlight)
    // res.send(req.body);
-  flifghtPrice(inputFlight);
+  flifghtPrice(inputFlight).then((data) => {
+    console.log(data);
+    data2=data // JSON data parsed by `response.json()` call
+  });
     }); 
 
 app.post('/flightCreateOrder', function(req, res) {
@@ -95,103 +104,87 @@ app.post('/flightCreateOrder', function(req, res) {
   });;
     }); 
 
+async function updateFlightSearch(departure, arrival, locationArrival,locationDeparture) {
 
-//flight search
- // let header= {'Content-Type': 'application/json', authorization: 'Bearer '+token}
-let updateFlightSearch = function (departure, arrival, locationArrival,locationDeparture) {
-let header= {'content-type': 'application/json', authorization: 'Bearer '+token}
-let request = {
-  "currencyCode": "USD",
-  "originDestinations": [
-  {
-    "id": "1",
-    "originLocationCode": locationDeparture,
-    "destinationLocationCode": locationArrival,
-    "departureDateTimeRange": {
-      "date": departure,
-      "time": "10:00:00"
-    }
-  },
-  ],
-  "travelers": [
-  {
-    "id": "1",
-    "travelerType": "ADULT",
-    "fareOptions": [
-    "STANDARD"
-    ]
-  },
-  ],
-  "sources": [
-  "GDS"
-  ],
-  "searchCriteria": {
-    "maxFlightOffers": 50,
-    "flightFilters": {
-      "cabinRestrictions": [
+    let request = {
+      "currencyCode": "USD",
+      "originDestinations": [
       {
-        "cabin": "BUSINESS",
-        "coverage": "MOST_SEGMENTS",
-        "originDestinationIds": [
-        "1"
-        ]
-      }
+        "id": "1",
+        "originLocationCode": locationDeparture,
+        "destinationLocationCode": locationArrival,
+        "departureDateTimeRange": {
+          "date": departure,
+          "time": "10:00:00"
+        }
+      },
       ],
+      "travelers": [
+      {
+        "id": "1",
+        "travelerType": "ADULT",
+        "fareOptions": [
+        "STANDARD"
+        ]
+      },
+      ],
+      "sources": [
+      "GDS"
+      ],
+      "searchCriteria": {
+        "maxFlightOffers": 50,
+        "flightFilters": {
+          "cabinRestrictions": [
+          {
+            "cabin": "BUSINESS",
+            "coverage": "MOST_SEGMENTS",
+            "originDestinationIds": [
+            "1"
+            ]
+          }
+          ],
+        }
+      }
     }
-  }
+  // Default options are marked with *
+  const response = await fetch("https://test.api.amadeus.com/v2/shopping/flight-offers", {
+    method: 'POST', // *GET, POST, PUT, DELETE, etc.
+    mode: 'cors', // no-cors, *cors, same-origin
+    cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+    credentials: 'same-origin', // include, *same-origin, omit
+    headers: {
+      'Content-Type': 'application/json',authorization: 'Bearer '+token
+      // 'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    redirect: 'follow', // manual, *follow, error
+    referrerPolicy: 'no-referrer', // no-referrer, *client
+    body: JSON.stringify(request) // body data type must match "Content-Type" header
+  });
+  return await response.json(); // parses JSON response into native JavaScript objects
 }
 
-let uriFlightOffer = "https://test.api.amadeus.com/v2/shopping/flight-offers"
-// console.log(request);
-fetch(uriFlightOffer, { method: 'POST', 
-  headers: header, 
-  body: JSON.stringify(request)
-})
-.then((res) => {
- return res.json()
-})
-.then((json) => {
-  console.log(json);
-  flightfrommadrid2=json.data;
-  return flightfrommadrid2;
-  // Do something with the returned data.
-});  
+//Function
+
+
+async function flifghtPrice(inputFlightOffer) {
+  // Default options are marked with *
+  const response = await fetch("https://test.api.amadeus.com/v2/shopping/flight-offers/pricing", {
+    method: 'POST', // *GET, POST, PUT, DELETE, etc.
+    mode: 'cors', // no-cors, *cors, same-origin
+    cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+    credentials: 'same-origin', // include, *same-origin, omit
+    headers: {
+      'Content-Type': 'application/json',authorization: 'Bearer '+token
+      // 'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    redirect: 'follow', // manual, *follow, error
+    referrerPolicy: 'no-referrer', // no-referrer, *client
+    body: JSON.stringify(inputFlightOffer) // body data type must match "Content-Type" header
+  });
+  return await response.json(); // parses JSON response into native JavaScript objects
 }
 
-
-// async function getUserAsync(name) 
-// {
-//   let response = await fetch(`https://api.github.com/users/${name}`);
-//   let data = await response.json()
-//   return data;
-// }
-
-// getUserAsync('yourUsernameHere')
-//   .then(data => console.log(data)); 
-
-let flifghtPrice = async function flightPrice (inputFlightOffer) {
- 
-let header= {'Content-Type': 'application/json', authorization: 'Bearer '+token}
-
-  let uriFlightOffer2 = "https://test.api.amadeus.com/v2/shopping/flight-offers/pricing"
-  let bodyChunk = {"data": {    
-          "type": "flight-offers-pricing",
-          "flightOffers": [inputFlightOffer]}
-    };
-
-    // var body = {"data":{"type":"flight-offers-pricing","flightOffers":[{"type":"flight-offer","id":"5","source":"GDS","instantTicketingRequired":false,"nonHomogeneous":false,"oneWay":false,"lastTicketingDate":"2020-01-09","numberOfBookableSeats":7,"itineraries":[{"duration":"PT32H15M","segments":[{"departure":{"iataCode":"SYD","terminal":"1","at":"2020-02-01T19:15:00"},"arrival":{"iataCode":"SIN","terminal":"1","at":"2020-02-02T01:00:00"},"carrierCode":"TR","number":"13","aircraft":{"code":"788"},"operating":{"carrierCode":"TR"},"duration":"PT8H45M","id":"35","numberOfStops":0,"blacklistedInEU":false},{"departure":{"iataCode":"SIN","terminal":"1","at":"2020-02-02T22:05:00"},"arrival":{"iataCode":"DMK","terminal":"1","at":"2020-02-02T23:30:00"},"carrierCode":"TR","number":"868","aircraft":{"code":"788"},"operating":{"carrierCode":"TR"},"duration":"PT2H25M","id":"36","numberOfStops":0,"blacklistedInEU":false}]}],"price":{"currency":"USD","total":"574.17","base":"446.00","fees":[{"amount":"0.00","type":"SUPPLIER"},{"amount":"0.00","type":"TICKETING"}],"grandTotal":"574.17"},"pricingOptions":{"fareType":["PUBLISHED"],"includedCheckedBagsOnly":true},"validatingAirlineCodes":["HR"],"travelerPricings":[{"travelerId":"1","fareOption":"STANDARD","travelerType":"ADULT","price":{"currency":"USD","total":"574.17","base":"446.00"},"fareDetailsBySegment":[{"segmentId":"35","cabin":"BUSINESS","fareBasis":"D0TR24","class":"D","includedCheckedBags":{"weight":20,"weightUnit":"KG"}},{"segmentId":"36","cabin":"BUSINESS","fareBasis":"J0TR24","class":"J","includedCheckedBags":{"weight":20,"weightUnit":"KG"}}]}]}]}}
-  console.log("reeq"+JSON.stringify(bodyChunk));
-  let response = await fetch(uriFlightOffer2, {
-        method: 'post',
-        body:   bodyChunk,
-        headers: header,
-    });
-  console.log(response)
-  data = await response.json()
-  return console.log(data)
-  }
-
-  async function CreateOrder(inputFlightCreateOrder) {
+async function CreateOrder(inputFlightCreateOrder) {
   // Default options are marked with *
   const response = await fetch("https://test.api.amadeus.com/v1/booking/flight-orders", {
     method: 'POST', // *GET, POST, PUT, DELETE, etc.
@@ -212,27 +205,7 @@ let header= {'Content-Type': 'application/json', authorization: 'Bearer '+token}
 
 
 
-
-//   let flifghtCreateOrder = async function flightPrice (inputCreateOrder) {
- 
-// let header= {'Content-Type': 'application/json', authorization: 'Bearer '+token}
-
-//   let uriFlightOffer3 = "https://test.api.amadeus.com/v1/booking/flight-orders"
-//   let bodyChunk2 = inputCreateOrder;
-
-//     // var body = {"data":{"type":"flight-offers-pricing","flightOffers":[{"type":"flight-offer","id":"5","source":"GDS","instantTicketingRequired":false,"nonHomogeneous":false,"oneWay":false,"lastTicketingDate":"2020-01-09","numberOfBookableSeats":7,"itineraries":[{"duration":"PT32H15M","segments":[{"departure":{"iataCode":"SYD","terminal":"1","at":"2020-02-01T19:15:00"},"arrival":{"iataCode":"SIN","terminal":"1","at":"2020-02-02T01:00:00"},"carrierCode":"TR","number":"13","aircraft":{"code":"788"},"operating":{"carrierCode":"TR"},"duration":"PT8H45M","id":"35","numberOfStops":0,"blacklistedInEU":false},{"departure":{"iataCode":"SIN","terminal":"1","at":"2020-02-02T22:05:00"},"arrival":{"iataCode":"DMK","terminal":"1","at":"2020-02-02T23:30:00"},"carrierCode":"TR","number":"868","aircraft":{"code":"788"},"operating":{"carrierCode":"TR"},"duration":"PT2H25M","id":"36","numberOfStops":0,"blacklistedInEU":false}]}],"price":{"currency":"USD","total":"574.17","base":"446.00","fees":[{"amount":"0.00","type":"SUPPLIER"},{"amount":"0.00","type":"TICKETING"}],"grandTotal":"574.17"},"pricingOptions":{"fareType":["PUBLISHED"],"includedCheckedBagsOnly":true},"validatingAirlineCodes":["HR"],"travelerPricings":[{"travelerId":"1","fareOption":"STANDARD","travelerType":"ADULT","price":{"currency":"USD","total":"574.17","base":"446.00"},"fareDetailsBySegment":[{"segmentId":"35","cabin":"BUSINESS","fareBasis":"D0TR24","class":"D","includedCheckedBags":{"weight":20,"weightUnit":"KG"}},{"segmentId":"36","cabin":"BUSINESS","fareBasis":"J0TR24","class":"J","includedCheckedBags":{"weight":20,"weightUnit":"KG"}}]}]}]}}
-//   console.log("reeq"+JSON.stringify(bodyChunk2));
-//   let response = await fetch(uriFlightOffer3, {
-//         method: 'post',
-//         body:   bodyChunk2,
-//         headers: header,
-//     });
-//   console.log(response)
-//   data = await response.json()
-//   return console.log(data)
-//   }
-
-
+//GET
 
 app.get('/flight', function(req, res) {
   res.send(JSON.stringify(flightfrommadrid));
@@ -244,12 +217,12 @@ app.get('/flightSearch', function(req, res) {
 });
 
 app.get('/flightPriceget', function(req, res) {
-  res.send(JSON.stringify(data));
-  console.log(data)
+  res.send(JSON.stringify(data2));
+  console.log(data2)
 });
 app.get('/flightcretaeorderget', function(req, res) {
   res.send(JSON.stringify(cretateOrder));
-  console.log(data)
+  console.log(cretateOrder)
 });
 
 
