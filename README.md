@@ -1,6 +1,6 @@
 ---
 title: Node JS app for amadeus API
-date: 2019-01-07
+date: 2020-01-07
 ---
 
 
@@ -187,10 +187,184 @@ app.get('/flight', function(req, res) {
   res.send(JSON.stringify(flightfrommadrid));
 });
 ```
-the complete code is available on github <a href="https://github.com/tvast/parser-amadeus-test">complete code</a>
-
-
 
 ## Ask the API : Flight offer prices
 
+You need to post some data so here is the code to post some data on your node js app.
+```javascript
+app.post('/flightprice', function(req, res) {
+  res.json(req.body);
+// console.log("request :"+JSON.stringify(req.body))
+  inputFlight = req.body;
+  console.log(inputFlight)
+   // res.send(req.body);
+  flifghtPrice(inputFlight).then((data) => {
+    console.log(data);
+    data2=data // JSON data parsed by `response.json()` call
+  });
+    }); 
+```
+Then you need to pass the data generated to a async function :
+```javascript
+async function flifghtPrice(inputFlightOffer) {
+  // Default options are marked with *
+  const response = await fetch("https://test.api.amadeus.com/v2/shopping/flight-offers/pricing", {
+    method: 'POST', // *GET, POST, PUT, DELETE, etc.
+    mode: 'cors', // no-cors, *cors, same-origin
+    cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+    credentials: 'same-origin', // include, *same-origin, omit
+    headers: {
+      'Content-Type': 'application/json',authorization: 'Bearer '+token
+      // 'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    redirect: 'follow', // manual, *follow, error
+    referrerPolicy: 'no-referrer', // no-referrer, *client
+    body: JSON.stringify(inputFlightOffer) // body data type must match "Content-Type" header
+  });
+  return await response.json(); // parses JSON response into native JavaScript objects
+}
+```
+
+And if you need to acdcess to the answer from amadeus here is the code to get the data:
+```javascript
+app.get('/flightPriceget', function(req, res) {
+  res.send(JSON.stringify(data2));
+  console.log(data2)
+});return await response.json(); // parses JSON response into native JavaScript objects
+```
+
 ## Ask the API flight create order
+
+Here is he tricky part. You need to build your request adding your flight offer and the data from the passenger:
+
+```javascript
+  "data": {
+    "type": "flight-order",
+    "flightOffers": [this.searchObject],
+    "travelers": [
+      {
+        "id": "1",
+        "dateOfBirth": "1982-01-16",
+        "name": {
+          "firstName": this.form.firstName,
+          "lastName": this.form.lastName
+        },
+        "gender": "MALE",
+        "contact": {
+          "emailAddress": this.form.email = null,
+          "phones": [
+            {
+              "deviceType": "MOBILE",
+              "countryCallingCode": "33",
+              "number": "0665735114"
+            }
+          ]
+        },
+        "documents": [
+          {
+            "documentType": "PASSPORT",
+            "birthPlace": "Madrid",
+            "issuanceLocation": "Madrid",
+            "issuanceDate": "2015-04-14",
+            "number": "00000000",
+            "expiryDate": "2025-04-14",
+            "issuanceCountry": "ES",
+            "validityCountry": "ES",
+            "nationality": "ES",
+            "holder": true
+          }
+        ]
+      },
+      
+    ],
+    "remarks": {
+      "general": [
+        {
+          "subType": "GENERAL_MISCELLANEOUS",
+          "text": "ONLINE BOOKING FROM INCREIBLE VIAJES"
+        }
+      ]
+    },
+    "ticketingAgreement": {
+      "option": "DELAY_TO_CANCEL",
+      "delay": "6D"
+    },
+    "contacts": [
+      {
+        "addresseeName": {
+          "firstName": "PABLO",
+          "lastName": "RODRIGUEZ"
+        },
+        "companyName": "INCREIBLE VIAJES",
+        "purpose": "STANDARD",
+        "phones": [
+          {
+            "deviceType": "LANDLINE",
+            "countryCallingCode": "34",
+            "number": "480080071"
+          },
+          {
+            "deviceType": "MOBILE",
+            "countryCallingCode": "33",
+            "number": "480080072"
+          }
+        ],
+        "emailAddress": "support@increibleviajes.es",
+        "address": {
+          "lines": [
+            "Calle Prado, 16"
+          ],
+          "postalCode": "28014",
+          "cityName": "Madrid",
+          "countryCode": "ES"
+        }
+      }
+    ]
+  }
+ // parses JSON response into native JavaScript objects
+```
+SearchObject is your flight offer just got from the api. Then get the data in a post route :
+
+```javascript
+app.post('/flightCreateOrder', function(req, res) {
+  res.json(req.body);
+// console.log("request :"+JSON.stringify(req.body))
+  inputFlightCreateOrder = req.body;
+  console.log(inputFlightCreateOrder)
+   // res.send(req.body);
+  CreateOrder(inputFlightCreateOrder)
+  .then((data) => {
+    console.log(data);
+    cretateOrder=data // JSON data parsed by `response.json()` call
+  });;
+    }); // parses JSON response into native JavaScript objects
+```
+The function called : 
+```javascript
+async function CreateOrder(inputFlightCreateOrder) {
+  // Default options are marked with *
+  const response = await fetch("https://test.api.amadeus.com/v1/booking/flight-orders", {
+    method: 'POST', // *GET, POST, PUT, DELETE, etc.
+    mode: 'cors', // no-cors, *cors, same-origin
+    cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+    credentials: 'same-origin', // include, *same-origin, omit
+    headers: {
+      'Content-Type': 'application/json',authorization: 'Bearer '+token
+      // 'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    redirect: 'follow', // manual, *follow, error
+    referrerPolicy: 'no-referrer', // no-referrer, *client
+    body: JSON.stringify(inputFlightCreateOrder) // body data type must match "Content-Type" header
+  });
+  return await response.json(); // parses JSON response into native JavaScript objects
+} // parses JSON response into native JavaScript objects
+```
+And the route to get the data : 
+
+```javascript
+app.get('/flightcretaeorderget', function(req, res) {
+  res.send(JSON.stringify(cretateOrder));
+  console.log(cretateOrder)
+});// parses JSON response into native JavaScript objects
+```
+the complete code is available on github <a href="https://github.com/tvast/parser-amadeus-test">complete code</a>
