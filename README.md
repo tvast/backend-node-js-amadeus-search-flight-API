@@ -4,7 +4,7 @@ date: 2020-01-07
 ---
 
 
-## NodeJS app for working with anadeus app
+## NodeJS app for working with amadeus app
 
 Hello folks. Today we'll learn how to start your proof of concept for a disruptive travel agency with the self service Amadeus API.
 
