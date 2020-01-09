@@ -17,6 +17,7 @@
     "amadeus": "^3.2.0",
     "dree": "^2.1.11",
     "glob": "^7.1.4",
+    "json-stringify-safe": "^5.0.1",
     "node-fetch": "^2.6.0",
     "node-static": "^0.7.11",
     "request": "^2.88.0",
