@@ -53,12 +53,31 @@ let headers= {
     token=json.access_token;
     console.log(token);
 
-
-//POST flight search 
-
 });
+  
+  // //POST flight search 
 
-let header= {'content-type': 'application/json', authorization: 'Bearer '+token}
+async function postUrlToken() {
+  // Default options are marked with *
+  const response = await fetch(uriAuth+bodyDate, {
+    method: 'POST', // *GET, POST, PUT, DELETE, etc.
+    mode: 'cors', // no-cors, *cors, same-origin
+    cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+    credentials: 'same-origin', // include, *same-origin, omit
+    headers: {
+      // 'Content-Type': 'application/json'   
+      'Content-Type': 'application/x-www-form-urlencoded',
+     },
+    redirect: 'follow', // manual, *follow, error
+    referrerPolicy: 'no-referrer', // no-referrer, *client
+    body: 'grant_type=client_credentials&client_id=' + body.client_id + '&client_secret=' + body.client_secret// body data type must match "Content-Type" header
+  });
+  return await response.json(); // parses JSON response into native JavaScript objects
+}
+
+
+
+// let header= {'content-type': 'application/json', authorization: 'Bearer '+token}
 app.use(bodyParser.json()); // support json encoded bodies
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -72,6 +91,11 @@ app.post('/date', function(req, res) {
   arrival = req.body.arrival;
   locationDeparture = req.body.locationDeparture;
   locationArrival =req.body.locationArrival;
+  postUrlToken().then((data) => {
+    window.console.log(data);
+    token=data.access_token;
+    // this.info3=data // JSON data parsed by `response.json()` call
+  });
   updateFlightSearch(departure, arrival, locationArrival,locationDeparture).then((data) => {
     console.log(data);
     flightfrommadrid2=data.data // JSON data parsed by `response.json()` call
@@ -85,6 +109,11 @@ app.post('/flightprice', function(req, res) {
   inputFlight = req.body;
   console.log(inputFlight)
    // res.send(req.body);
+   postUrlToken().then((data) => {
+    window.console.log(data);
+    token=data.access_token;
+    // this.info3=data // JSON data parsed by `response.json()` call
+  });
   flifghtPrice(inputFlight).then((data) => {
     console.log(data);
     data2=data // JSON data parsed by `response.json()` call
@@ -96,6 +125,12 @@ app.post('/flightCreateOrder', function(req, res) {
 // console.log("request :"+JSON.stringify(req.body))
   inputFlightCreateOrder = req.body;
   console.log(inputFlightCreateOrder)
+
+  postUrlToken().then((data) => {
+    window.console.log(data);
+    token=data.access_token;
+    // this.info3=data // JSON data parsed by `response.json()` call
+  });
    // res.send(req.body);
   CreateOrder(inputFlightCreateOrder)
   .then((data) => {
@@ -181,6 +216,7 @@ async function flifghtPrice(inputFlightOffer) {
     referrerPolicy: 'no-referrer', // no-referrer, *client
     body: JSON.stringify(inputFlightOffer) // body data type must match "Content-Type" header
   });
+  console.log(inputFlightOffer)
   return await response.json(); // parses JSON response into native JavaScript objects
 }
 
@@ -226,7 +262,7 @@ app.get('/flightcretaeorderget', function(req, res) {
 });
 
 
-app.get('/token', function(req, res) {
+app.get('/', function(req, res) {
   res.send(JSON.stringify(token));
 });
 
