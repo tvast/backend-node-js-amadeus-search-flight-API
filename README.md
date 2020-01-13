@@ -1,10 +1,4 @@
----
-title: Node JS app for amadeus API
-date: 2020-01-07
----
-
-
-## NodeJS app for working with anadeus app
+## NodeJS app for working with amadeus app
 
 Hello folks. Today we'll learn how to start your proof of concept for a disruptive travel agency with the self service Amadeus API.
 
@@ -32,7 +26,7 @@ console.log('Amadeus RESTful API server started on: ' + port);
 This code is an instance of an express server. Who listen on the port 3000. Here is the package json to install the depedencies :
 ```javascript
 {
-  "name": "Amadeus",
+  "name": "AmadeusSelfserviceApi",
   "version": "1.0.0",
   "description": "parse folder of ventyas to generate jSon",
   "main": "server.js",
@@ -47,13 +41,12 @@ This code is an instance of an express server. Who listen on the port 3000. Here
     "nodemon": "^1.19.4"
   },
   "dependencies": {
+    "express": "^4.17.1",
+    "nodemon": "^1.19.4",
     "amadeus": "^3.2.0",
-    "dree": "^2.1.11",
-    "glob": "^7.1.4",
     "node-fetch": "^2.6.0",
     "node-static": "^0.7.11",
     "request": "^2.88.0",
-    "serve-index": "^1.9.1"
   }
 }
 ```
@@ -104,100 +97,138 @@ You can check the documentation if you get any error.
 
 ## Ask the API : Flight offer search
 
-IF you are here it means that you got the precious token. Congratulations ! Now its time to build your request to post it and retrieve data from the AMadeus flight offer search endpoint.
+IF you are here it means that you got the precious token. Congratulations ! Now its time to build your request to post it and retrieve data from the Amadeus flight offer search endpoint.
 
 
 ```javascript
-let request = {
-  "currencyCode": "USD",
-  "originDestinations": [
-    {
-      "id": "1",
-      "originLocationCode": "MAD",
-      "destinationLocationCode": "PAR",
-      "departureDateTimeRange": {
-        "date": departure,
-        "time": "10:00:00"
-      }
-    },
-   ],
-  "travelers": [
-    {
-      "id": "1",
-      "travelerType": "ADULT",
-      "fareOptions": [
-        "STANDARD"
-      ]
-    },
-  ],
-  "sources": [
-    "GDS"
-  ],
-  "searchCriteria": {
-    "maxFlightOffers": 50,
-    "flightFilters": {
-      "cabinRestrictions": [
-        {
-          "cabin": "BUSINESS",
-          "coverage": "MOST_SEGMENTS",
-          "originDestinationIds": [
-            "1"
-          ]
+ let request = {
+      "currencyCode": "USD",
+      "originDestinations": [
+      {
+        "id": "1",
+        "originLocationCode": locationDeparture,
+        "destinationLocationCode": locationArrival,
+        "departureDateTimeRange": {
+          "date": departure,
+          "time": "10:00:00"
         }
+      },
       ],
-     }
-  }
-}
-
+      "travelers": [
+      {
+        "id": "1",
+        "travelerType": "ADULT",
+        "fareOptions": [
+        "STANDARD"
+        ]
+      },
+      ],
+      "sources": [
+      "GDS"
+      ],
+      "searchCriteria": {
+        "maxFlightOffers": 50,
+        "flightFilters": {
+          "cabinRestrictions": [
+          {
+            "cabin": "BUSINESS",
+            "coverage": "MOST_SEGMENTS",
+            "originDestinationIds": [
+            "1"
+            ]
+          }
+          ],
+        }
+      }
+    }
 ```
 
 Where departure is the value desired for your search. It can come from a post from any frontend framework with the next code snippets : 
 
 ```javascript
 app.post('/date', function(req, res) {
-  console.log(req)
-    departure = req.body.departure;
-    arrival = req.body.arrival;
-    console.log(departure+" "+arrival)
-    res.send(departure + ' ' + arrival);
-
-}); 
+  departure = req.body.departure;
+  arrival = req.body.arrival;
+  locationDeparture = req.body.locationDeparture;
+  locationArrival =req.body.locationArrival;
+  postUrlToken().then((data) => {
+    window.console.log(data);
+    token=data.access_token;
+    // this.info3=data // JSON data parsed by `response.json()` call
+  });
+  updateFlightSearch(departure, arrival, locationArrival,locationDeparture).then((data) => {
+    console.log(data);
+    flightfrommadrid2=data.data // JSON data parsed by `response.json()` call
+  });
+  }); 
 ```
-Now you can post your json variable to the api and get some data : 
+Now you can post your json variable to the api and get some data. We use asynchronous function call : 
 
 ```javascript
-let uriFlightOffer = "https://test.api.amadeus.com/v2/shopping/flight-offers"
-// console.log(request);
-fetch(uriFlightOffer, { method: 'POST', 
-  headers: header, 
-  body: JSON.stringify(request)
-})
-  .then((res) => {
-     return res.json()
-})
-.then((json) => {
-  // console.log(json);
-  flightfrommadrid=json.data;
-  // Do something with the returned data.
-}); 
+ const response = await fetch("https://test.api.amadeus.com/v2/shopping/flight-offers", {
+    method: 'POST', // *GET, POST, PUT, DELETE, etc.
+    mode: 'cors', // no-cors, *cors, same-origin
+    cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+    credentials: 'same-origin', // include, *same-origin, omit
+    headers: {
+      'Content-Type': 'application/json',authorization: 'Bearer '+token
+      // 'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    redirect: 'follow', // manual, *follow, error
+    referrerPolicy: 'no-referrer', // no-referrer, *client
+    body: JSON.stringify(request) // body data type must match "Content-Type" header
+  });
+  return await response.json(); // parses JSON response into native JavaScript objects
+ 
 ```
 And if you want to serve your result to a route here is the snippets :
 ```javascript
-app.get('/flight', function(req, res) {
-  res.send(JSON.stringify(flightfrommadrid));
+app.get('/flightSearch', function(req, res) {
+  res.send(JSON.stringify(flightfrommadrid2));
+  console.log(flightfrommadrid2)
 });
+```
+
+By the way we generate a new token on every functioin call : 
+
+
+```javascript
+async function postUrlToken() {
+  // Default options are marked with *
+  const response = await fetch(uriAuth+bodyDate, {
+    method: 'POST', // *GET, POST, PUT, DELETE, etc.
+    mode: 'cors', // no-cors, *cors, same-origin
+    cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+    credentials: 'same-origin', // include, *same-origin, omit
+    headers: {
+      // 'Content-Type': 'application/json'   
+      'Content-Type': 'application/x-www-form-urlencoded',
+     },
+    redirect: 'follow', // manual, *follow, error
+    referrerPolicy: 'no-referrer', // no-referrer, *client
+    body: 'grant_type=client_credentials&client_id=' + body.client_id + '&client_secret=' + body.client_secret// body data type must match "Content-Type" header
+  });
+  return await response.json(); // parses JSON response into native JavaScript objects
+}
 ```
 
 ## Ask the API : Flight offer prices
 
-You need to post some data so here is the code to post some data on your node js app.
+You need to post some data so here is the code to post some data on your node js app with the same logic.
 ```javascript
+//get flight offer price
+
 app.post('/flightprice', function(req, res) {
   res.json(req.body);
 // console.log("request :"+JSON.stringify(req.body))
   inputFlight = req.body;
   console.log(inputFlight)
    // res.send(req.body);
+   postUrlToken().then((data) => {
+    window.console.log(data);
+    token=data.access_token;
+    // this.info3=data // JSON data parsed by `response.json()` call
+  });
   flifghtPrice(inputFlight).then((data) => {
     console.log(data);
     data2=data // JSON data parsed by `response.json()` call
@@ -230,7 +261,7 @@ And if you need to acdcess to the answer from amadeus here is the code to get th
 app.get('/flightPriceget', function(req, res) {
   res.send(JSON.stringify(data2));
   console.log(data2)
-});return await response.json(); // parses JSON response into native JavaScript objects
+});// parses JSON response into native JavaScript objects
 ```
 
 ## Ask the API flight create order

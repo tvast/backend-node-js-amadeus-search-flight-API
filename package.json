@@ -1,5 +1,5 @@
 {
-  "name": "nodeventas",
+  "name": "AmadeusSelfserviceApi",
   "version": "1.0.0",
   "description": "parse folder of ventyas to generate jSon",
   "main": "server.js",
@@ -17,12 +17,8 @@
     "express": "^4.17.1",
     "nodemon": "^1.19.4",
     "amadeus": "^3.2.0",
-    "dree": "^2.1.11",
-    "glob": "^7.1.4",
-    "json-stringify-safe": "^5.0.1",
     "node-fetch": "^2.6.0",
     "node-static": "^0.7.11",
     "request": "^2.88.0",
-    "serve-index": "^1.9.1"
   }
 }
