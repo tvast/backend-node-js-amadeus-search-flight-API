@@ -92,7 +92,7 @@ app.post('/date', function(req, res) {
   locationDeparture = req.body.locationDeparture;
   locationArrival =req.body.locationArrival;
   postUrlToken().then((data) => {
-    window.console.log(data);
+    console.log(data);
     token=data.access_token;
     // this.info3=data // JSON data parsed by `response.json()` call
   });
@@ -110,7 +110,7 @@ app.post('/flightprice', function(req, res) {
   console.log(inputFlight)
    // res.send(req.body);
    postUrlToken().then((data) => {
-    window.console.log(data);
+    console.log(data);
     token=data.access_token;
     // this.info3=data // JSON data parsed by `response.json()` call
   });
@@ -127,7 +127,7 @@ app.post('/flightCreateOrder', function(req, res) {
   console.log(inputFlightCreateOrder)
 
   postUrlToken().then((data) => {
-    window.console.log(data);
+    console.log(data);
     token=data.access_token;
     // this.info3=data // JSON data parsed by `response.json()` call
   });
