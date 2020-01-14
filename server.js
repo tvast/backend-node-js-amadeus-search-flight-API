@@ -59,7 +59,7 @@ let headers= {
 
 async function postUrlToken() {
   // Default options are marked with *
-  const response = await fetch(uriAuth+bodyDate, {
+  const response = await fetch(uriAuth, {
     method: 'POST', // *GET, POST, PUT, DELETE, etc.
     mode: 'cors', // no-cors, *cors, same-origin
     cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
@@ -91,15 +91,19 @@ app.post('/date', function(req, res) {
   arrival = req.body.arrival;
   locationDeparture = req.body.locationDeparture;
   locationArrival =req.body.locationArrival;
-  postUrlToken().then((data) => {
-    console.log(data);
-    token=data.access_token;
-    // this.info3=data // JSON data parsed by `response.json()` call
-  });
+//   postUrlToken().then((data) => {
+//     console.log(data);
+//     // token=data.access_token;
+//     // this.info3=data // JSON data parsed by `response.json()` call
+//   }).catch(function(error) {
+//   console.error(error);
+// });
   updateFlightSearch(departure, arrival, locationArrival,locationDeparture).then((data) => {
     console.log(data);
     flightfrommadrid2=data.data // JSON data parsed by `response.json()` call
-  });
+  }).catch(function(error) {
+  console.error(error);
+});
   }); 
 //get flight offer price
 
@@ -109,15 +113,13 @@ app.post('/flightprice', function(req, res) {
   inputFlight = req.body;
   console.log(inputFlight)
    // res.send(req.body);
-   postUrlToken().then((data) => {
-    console.log(data);
-    token=data.access_token;
-    // this.info3=data // JSON data parsed by `response.json()` call
-  });
+  
   flifghtPrice(inputFlight).then((data) => {
     console.log(data);
     data2=data // JSON data parsed by `response.json()` call
-  });
+  }).catch(function(error) {
+  console.error(error);
+});
     }); 
 
 app.post('/flightCreateOrder', function(req, res) {
@@ -126,17 +128,14 @@ app.post('/flightCreateOrder', function(req, res) {
   inputFlightCreateOrder = req.body;
   console.log(inputFlightCreateOrder)
 
-  postUrlToken().then((data) => {
-    console.log(data);
-    token=data.access_token;
-    // this.info3=data // JSON data parsed by `response.json()` call
-  });
    // res.send(req.body);
   CreateOrder(inputFlightCreateOrder)
   .then((data) => {
     console.log(data);
     cretateOrder=data // JSON data parsed by `response.json()` call
-  });;
+  }).catch(function(error) {
+  console.error(error);
+});
     }); 
 
 async function updateFlightSearch(departure, arrival, locationArrival,locationDeparture) {
@@ -263,7 +262,7 @@ app.get('/flightcretaeorderget', function(req, res) {
 
 
 app.get('/', function(req, res) {
-  res.send(JSON.stringify(token));
+  res.send('WELCOME OT TIJUANA');
 });
 
 
