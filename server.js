@@ -28,20 +28,27 @@ let inputFlight="";
 let cretateOrder ="";
 let data="";
 let data2="";
+let keyword = "";
+let countryCode ="";
+let returnSearch ="";
+
 //get grant
 let headers= {  
-      'Content-Type': 'application/x-www-form-urlencoded',
-    };
+  'Content-Type': 'application/x-www-form-urlencoded',
+};
 
-    let body = {
-     "grant_type": "client_credentials",
-     "client_id": "qztkbf5XWjNSGkXRF9bfAwNg6bELWvVD",
-     "client_secret": "w9mJ7ZJzlEGNffut",
+let body = {
+ "grant_type": "client_credentials",
+ "client_id": "qztkbf5XWjNSGkXRF9bfAwNg6bELWvVD",
+ "client_secret": "w9mJ7ZJzlEGNffut",
 
-   }
+}
+//airport city search
+let citySearch = "https://test.api.amadeus.com/v1/reference-data/locations?"
 
-   let token="";
-   fetch(uriAuth, { method: 'POST', 
+//init token
+let token="";
+  fetch(uriAuth, { method: 'POST', 
     headers: headers, 
     body: 'grant_type=client_credentials&client_id=' + body.client_id + '&client_secret=' + body.client_secret
   })
@@ -53,9 +60,7 @@ let headers= {
     token=json.access_token;
     console.log(token);
 
-});
-  
-  // //POST flight search 
+  });
 
 async function postUrlToken() {
   // Default options are marked with *
@@ -75,6 +80,27 @@ async function postUrlToken() {
   return await response.json(); // parses JSON response into native JavaScript objects
 }
 
+//POST flight search 
+async function getCitySearch(url) {
+  // Default options are marked with *
+  const response = await fetch(citySearch+"subType=CITY,AIRPORT"+url , {
+    method: 'GET', // *GET, POST, PUT, DELETE, etc.
+    mode: 'cors', // no-cors, *cors, same-origin
+    cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+    credentials: 'same-origin', // include, *same-origin, omit
+    headers: {
+      // 'Content-Type': 'application/json'   
+      //'Content-Type': ,
+      'Content-Type': 'application/x-www-form-urlencoded',authorization: 'Bearer '+token
+     },
+    redirect: 'follow', // manual, *follow, error
+    referrerPolicy: 'no-referrer', // no-referrer, *client
+    // body: 
+  });
+  console.log(citySearch)
+  return await response.json(); // parses JSON response into native JavaScript objects
+}
+
 
 
 // let header= {'content-type': 'application/json', authorization: 'Bearer '+token}
@@ -84,20 +110,40 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());
 
 //POST
-
+//get flight offer
+app.post('/citySearch', function(req, res) {
+  console.log(req)
+  keyword = req.body.keyword;
+  // countryCode =req.body.countryCode;
+  var urlSend= "&keyword="+keyword
+console.log(keyword);
+  //   postUrlToken().then((data) => {
+  //     console.log(data);
+  //     // token=data.access_token;
+  //     // this.info3=data // JSON data parsed by `response.json()` call
+  //   }).catch(function(error) {
+  //   console.error(error);
+  // });
+  getCitySearch(urlSend).then((data) => {
+    console.log(data);
+    returnSearch=data // JSON data parsed by `response.json()` call
+  }).catch(function(error) {
+  console.error(error);
+});
+  });
 //get flight offer
 app.post('/date', function(req, res) {
   departure = req.body.departure;
   arrival = req.body.arrival;
   locationDeparture = req.body.locationDeparture;
   locationArrival =req.body.locationArrival;
-//   postUrlToken().then((data) => {
-//     console.log(data);
-//     // token=data.access_token;
-//     // this.info3=data // JSON data parsed by `response.json()` call
-//   }).catch(function(error) {
-//   console.error(error);
-// });
+  //   postUrlToken().then((data) => {
+  //     console.log(data);
+  //     // token=data.access_token;
+  //     // this.info3=data // JSON data parsed by `response.json()` call
+  //   }).catch(function(error) {
+  //   console.error(error);
+  // });
   updateFlightSearch(departure, arrival, locationArrival,locationDeparture).then((data) => {
     console.log(data);
     flightfrommadrid2=data.data // JSON data parsed by `response.json()` call
@@ -259,6 +305,13 @@ app.get('/flightcretaeorderget', function(req, res) {
   res.send(JSON.stringify(cretateOrder));
   console.log(cretateOrder)
 });
+
+app.get('/departureGet', function(req, res) {
+  res.send(JSON.stringify(returnSearch));
+  console.log(returnSearch)
+});
+
+
 
 
 app.get('/', function(req, res) {
