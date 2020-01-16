@@ -82,6 +82,7 @@ async function postUrlToken() {
 
 //POST flight search 
 async function getCitySearch(url) {
+  // returnSearch ="";
   // Default options are marked with *
   const response = await fetch(citySearch+"subType=CITY,AIRPORT"+url , {
     method: 'GET', // *GET, POST, PUT, DELETE, etc.
@@ -146,7 +147,8 @@ app.post('/date', function(req, res) {
   // });
   updateFlightSearch(departure, arrival, locationArrival,locationDeparture).then((data) => {
     console.log(data);
-    flightfrommadrid2=data.data // JSON data parsed by `response.json()` call
+    flightfrommadrid2=data.data
+    res.send(JSON.stringify(flightfrommadrid2)); // JSON data parsed by `response.json()` call
   }).catch(function(error) {
   console.error(error);
 });
