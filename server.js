@@ -1,11 +1,16 @@
+var app = require('express')();
+var http = require('http').createServer(app);
+// var io = require('socket.io')(http);
+const socket = require('socket.io')
+const cors = require('cors')
 var express = require('express')
 var glob = require("glob")
 const bodyParser = require('body-parser');
-
+var parse = require('socket.io')(http);
 const fetch = require('node-fetch');
 var stringify = require('json-stringify-safe');
-app = express(),
-port = process.env.PORT || 3000;
+// app = express(),
+// port = process.env.PORT || 3000;
 
 
 let allowCrossDomain = function(req, res, next) {
@@ -118,16 +123,17 @@ app.post('/citySearch', function(req, res) {
   // countryCode =req.body.countryCode;
   var urlSend= "&keyword="+keyword
 console.log(keyword);
-  //   postUrlToken().then((data) => {
-  //     console.log(data);
-  //     // token=data.access_token;
-  //     // this.info3=data // JSON data parsed by `response.json()` call
-  //   }).catch(function(error) {
-  //   console.error(error);
-  // });
+    postUrlToken().then((data) => {
+      console.log(data);
+      // token=data.access_token;
+      // this.info3=data // JSON data parsed by `response.json()` call
+    }).catch(function(error) {
+    console.error(error);
+  });
   getCitySearch(urlSend).then((data) => {
     console.log(data);
-    returnSearch=data // JSON data parsed by `response.json()` call
+    returnSearch=data
+    res.send(JSON.stringify(returnSearch)); // JSON data parsed by `response.json()` call
   }).catch(function(error) {
   console.error(error);
 });
@@ -180,7 +186,8 @@ app.post('/flightCreateOrder', function(req, res) {
   CreateOrder(inputFlightCreateOrder)
   .then((data) => {
     console.log(data);
-    cretateOrder=data // JSON data parsed by `response.json()` call
+    cretateOrder=data 
+    res.send(JSON.stringify(cretateOrder));// JSON data parsed by `response.json()` call
   }).catch(function(error) {
   console.error(error);
 });
@@ -314,13 +321,36 @@ app.get('/departureGet', function(req, res) {
 });
 
 
+// io.on('connection', (socket) => {
 
+//     socket.on('disconnect', () => {
+//         console.log("A user disconnected");
+//     });
+    
+//     });
 
 app.get('/', function(req, res) {
   res.send('WELCOME OT TIJUANA');
 });
 
+app.get('/chat', async (req,res) => {
+  let result = await message.find()
+  res.send(result);
+})
 
-app.listen(port);
-// console.log(tree)
-console.log('Amadeus RESTful API server started on: ' + port);
+var server = app.listen(3000,()=>{
+  console.log("Howdy, I am running at PORT 3000")
+})
+
+// let io =  socket(server);
+
+let io =  socket(server);
+
+io.on("connection", function(socket){
+  console.log("Socket Connection Established with ID :"+ socket.id)
+  // socket.on("chat", async function(chat){
+  //   chat.created = new Date()
+  //   let response = await new message(chat).save()
+  //   socket.emit("chat",chat)
+  // })
+})
