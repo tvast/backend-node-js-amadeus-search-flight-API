@@ -153,7 +153,7 @@ app.post('/date', function(req, res) {
   // });
   updateFlightSearch(departure, arrival, locationArrival,locationDeparture).then((data) => {
     console.log(data);
-    flightfrommadrid2=data.data
+    flightfrommadrid2=data
     res.send(JSON.stringify(flightfrommadrid2)); // JSON data parsed by `response.json()` call
   }).catch(function(error) {
   console.error(error);
@@ -292,9 +292,6 @@ async function CreateOrder(inputFlightCreateOrder) {
   return await response.json(); // parses JSON response into native JavaScript objects
 }
 
-
-
-
 //GET
 
 app.get('/flight', function(req, res) {
@@ -320,15 +317,6 @@ app.get('/departureGet', function(req, res) {
   console.log(returnSearch)
 });
 
-
-// io.on('connection', (socket) => {
-
-//     socket.on('disconnect', () => {
-//         console.log("A user disconnected");
-//     });
-    
-//     });
-
 app.get('/', function(req, res) {
   res.send('WELCOME OT TIJUANA');
 });
@@ -342,15 +330,9 @@ var server = app.listen(3000,()=>{
   console.log("Howdy, I am running at PORT 3000")
 })
 
-// let io =  socket(server);
 
 let io =  socket(server);
 
 io.on("connection", function(socket){
   console.log("Socket Connection Established with ID :"+ socket.id)
-  // socket.on("chat", async function(chat){
-  //   chat.created = new Date()
-  //   let response = await new message(chat).save()
-  //   socket.emit("chat",chat)
-  // })
 })
