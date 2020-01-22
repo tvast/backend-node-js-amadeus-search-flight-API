@@ -318,7 +318,7 @@ app.get('/departureGet', function(req, res) {
 });
 
 app.get('/', function(req, res) {
-  res.send('WELCOME OT TIJUANA');
+  res.send('WELCOME OT Amadeus');
 });
 
 app.get('/chat', async (req,res) => {
@@ -326,7 +326,7 @@ app.get('/chat', async (req,res) => {
   res.send(result);
 })
 
-var server = app.listen(3000,()=>{
+var server = app.listen(process.env.PORT || 3000,()=>{
   console.log("Howdy, I am running at PORT 3000")
 })
 
